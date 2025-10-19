@@ -1,0 +1,11 @@
+# Claude Code Configuration for Worst Calculator Project
+
+## Project Context
+
+You are working in the worst-calculator repository.
+
+**IMPORTANT:** Before working on any task, read `/specs/overview.md` for complete project context, architecture principles, version isolation rules, and maintenance guidelines.
+
+### Documentation
+
+Found in the `/specs/*`, `/docs/*`, or anything with `*.md` file naming. Before each change and save, format the markdown appropriately. I don't want to manually have to run CMD+Shift+P -> Format Document.
