@@ -1,0 +1,3 @@
+# Worst Calculator
+
+initial commit
