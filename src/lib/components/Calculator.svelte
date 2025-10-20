@@ -87,7 +87,11 @@
 </script>
 
 <div class="calculator">
-  <Display value={$state.displayValue} />
+  <Display
+    value={$state.displayValue}
+    previousValue={$state.previousValue}
+    operation={$state.operation}
+  />
 
   <div class="button-grid">
     <Button value="AC" variant="clear" onClick={() => calculatorStore.handleAllClear()} />
