@@ -1,221 +1,138 @@
-# Deployment Options
+# Deployment
 
 ## Overview
 
-This document outlines deployment options optimized for ease of use and minimal DevOps knowledge. All options provide one-click or near-zero-config deployment with automatic CI/CD.
+This project is configured to deploy to **Cloudflare Pages** with automatic CI/CD through GitHub integration. This document describes the deployment process and configuration.
 
 ---
 
-## Recommended: Vercel (Best for SvelteKit)
+## Current Deployment: Cloudflare Pages
 
-**Difficulty**: P Easiest
-**Cost**: Free tier available
-**Setup Time**: 5 minutes
-
-### Why Vercel?
-- **Zero-config** SvelteKit deployment
-- Built by the creators of Next.js, excellent framework support
-- Automatic HTTPS, CDN, and edge functions
-- Git integration with automatic deployments
-- Preview deployments for every pull request
-- Generous free tier
-
-### Deployment Steps
-
-1. **Push to GitHub**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin <your-github-repo>
-   git push -u origin main
-   ```
-
-2. **Connect to Vercel**
-   - Go to [vercel.com](https://vercel.com)
-   - Click "Import Project"
-   - Select your GitHub repository
-   - Vercel auto-detects SvelteKit - click "Deploy"
-   - Done! Your app is live
-
-3. **Automatic CI/CD**
-   - Every push to `main` í automatic production deployment
-   - Every PR í automatic preview deployment with unique URL
-   - No configuration files needed
-
-### Environment Variables
-Add in Vercel dashboard under Settings í Environment Variables:
-- `PUBLIC_APP_NAME`
-- `PUBLIC_APP_VERSION`
-- Future: OAuth secrets (when adding authentication)
-
-### Custom Domain
-- Add custom domain in Vercel dashboard (Settings í Domains)
-- Vercel automatically provisions SSL certificate
-- DNS setup is guided and simple
-
----
-
-## Alternative: Netlify
-
-**Difficulty**: P Very Easy
-**Cost**: Free tier available
+**Difficulty**: ‚≠ê Easy
+**Cost**: Free (unlimited bandwidth on free tier)
 **Setup Time**: 5-10 minutes
 
-### Why Netlify?
-- Excellent SvelteKit support with `@sveltejs/adapter-netlify`
-- Built-in CI/CD and previews
-- Form handling and serverless functions
-- Split testing and analytics
-- Great documentation
+### Why Cloudflare Pages?
+- **Global CDN** with edge computing for fast worldwide performance
+- **Unlimited bandwidth** on free tier
+- Fast builds and deployments
+- Cloudflare's security features included (DDoS protection, SSL)
+- Excellent SvelteKit support with `@sveltejs/adapter-cloudflare`
+- Git integration with automatic deployments
+- Preview deployments for pull requests
 
-### Deployment Steps
+### Configuration Files
 
-1. **Install Netlify Adapter**
-   ```bash
-   npm install -D @sveltejs/adapter-netlify
-   ```
+The project includes the following configuration for Cloudflare Pages:
 
-2. **Update svelte.config.js**
-   ```javascript
-   import adapter from '@sveltejs/adapter-netlify';
+**`svelte.config.js`**
+```javascript
+import adapter from '@sveltejs/adapter-cloudflare';
 
-   const config = {
-     kit: {
-       adapter: adapter()
-     }
-   };
-   ```
-
-3. **Deploy via Netlify**
-   - Go to [netlify.com](https://netlify.com)
-   - Click "Add new site" í "Import from Git"
-   - Connect GitHub repository
-   - Build settings auto-detected:
-     - Build command: `npm run build`
-     - Publish directory: `build`
-   - Click "Deploy"
-
-4. **Automatic CI/CD**
-   - Push to `main` í production deployment
-   - PRs í preview deployments
-   - Optional: `netlify.toml` for advanced config (not required)
-
-### Optional: netlify.toml
-```toml
-[build]
-  command = "npm run build"
-  publish = "build"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+const config = {
+  kit: {
+    adapter: adapter()
+  }
+};
 ```
 
----
+**`wrangler.toml`**
+```toml
+name = "worst-calculator"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = ".svelte-kit/cloudflare"
+```
 
-## Alternative: Cloudflare Pages
+**`.node-version`**
+```
+20
+```
 
-**Difficulty**: PP Easy
-**Cost**: Free tier available
-**Setup Time**: 10 minutes
+### Initial Setup
 
-### Why Cloudflare Pages?
-- Global CDN with edge computing
-- Unlimited bandwidth on free tier
-- Fast builds and deployments
-- Cloudflare's security features included
-- Great for international users
+1. **Prerequisites**
+   - Code pushed to GitHub repository: `https://github.com/jchan922/worst-calculator`
+   - Cloudflare account (free): [dash.cloudflare.com](https://dash.cloudflare.com)
 
-### Deployment Steps
+2. **Connect to Cloudflare Pages**
+   - Go to [Cloudflare Dashboard](https://dash.cloudflare.com/)
+   - Click **"Workers & Pages"** in the left sidebar
+   - Click **"Create application"**
+   - Select the **"Pages"** tab
+   - Click **"Connect to Git"**
 
-1. **Install Cloudflare Adapter**
-   ```bash
-   npm install -D @sveltejs/adapter-cloudflare
-   ```
+3. **Connect Your Repository**
+   - Select **GitHub** as your Git provider
+   - Authorize Cloudflare to access your GitHub account (if needed)
+   - Select the repository: **`jchan922/worst-calculator`**
+   - Click **"Begin setup"**
 
-2. **Update svelte.config.js**
-   ```javascript
-   import adapter from '@sveltejs/adapter-cloudflare';
+4. **Configure Build Settings**
 
-   const config = {
-     kit: {
-       adapter: adapter()
-     }
-   };
-   ```
+   Set the following build configuration:
 
-3. **Deploy via Cloudflare**
-   - Go to [pages.cloudflare.com](https://pages.cloudflare.com)
-   - Click "Create a project" í "Connect to Git"
-   - Select repository
-   - Framework preset: SvelteKit
-   - Build command: `npm run build`
-   - Build output: `.svelte-kit/cloudflare`
-   - Click "Save and Deploy"
+   - **Project name**: `worst-calculator` (or your preferred name)
+   - **Production branch**: `master`
+   - **Framework preset**: `SvelteKit`
+   - **Build command**: `npm run build`
+   - **Build output directory**: `.svelte-kit/cloudflare`
 
-4. **Automatic CI/CD**
-   - Git push triggers automatic deployment
-   - Preview deployments for branches
-   - Analytics included
+   Click **"Save and Deploy"**
 
----
+5. **Deployment Complete**
+   - Cloudflare will build and deploy your app (typically 1-2 minutes)
+   - Once complete, you'll receive a live URL like: `https://worst-calculator.pages.dev`
 
-## Alternative: Railway
+### Automatic CI/CD
 
-**Difficulty**: PP Easy
-**Cost**: $5/month minimum (trial available)
-**Setup Time**: 5 minutes
+Once configured, deployments happen automatically:
 
-### Why Railway?
-- One-click Node.js deployments
-- Built-in database support (PostgreSQL, MySQL, etc.)
-- Great for apps that need a database
-- Simple pricing (pay for what you use)
-- Excellent developer experience
+- **Production Deployments**: Every push to `master` branch triggers automatic rebuild and deployment
+- **Preview Deployments**: Every pull request gets a unique preview URL for testing
+- **Build Status**: GitHub commits show build status via Cloudflare Pages integration
+- **Rollback**: Easy rollback to previous deployments via Cloudflare dashboard
 
-### Deployment Steps
+### Environment Variables
 
-1. **Use Node Adapter** (default)
-   ```bash
-   npm install -D @sveltejs/adapter-node
-   ```
+Add environment variables in Cloudflare Dashboard:
+- Navigate to: **Workers & Pages** ‚Üí **Your Project** ‚Üí **Settings** ‚Üí **Environment Variables**
+- Currently, no environment variables are required
+- Future variables (when adding features):
+  - `PUBLIC_APP_NAME`
+  - `PUBLIC_APP_VERSION`
+  - OAuth secrets (Phase 2: Authentication)
 
-2. **Update svelte.config.js**
-   ```javascript
-   import adapter from '@sveltejs/adapter-node';
+### Custom Domain
 
-   const config = {
-     kit: {
-       adapter: adapter()
-     }
-   };
-   ```
-
-3. **Deploy via Railway**
-   - Go to [railway.app](https://railway.app)
-   - Click "New Project" í "Deploy from GitHub repo"
-   - Select repository
-   - Railway auto-detects Node.js
-   - Environment variables auto-configured
-   - Click "Deploy"
-
-4. **Add Database (Optional)**
-   - Click "New" í "Database" í "PostgreSQL"
-   - Connection string automatically injected
-   - Perfect for future Phase 4 (data persistence)
+To add a custom domain:
+1. Go to **Workers & Pages** ‚Üí **Your Project** ‚Üí **Custom domains**
+2. Click **"Set up a custom domain"**
+3. Enter your domain name
+4. Follow DNS configuration instructions
+5. Cloudflare automatically provisions SSL certificate
+6. Changes propagate globally within minutes
 
 ---
 
-## Comparison Table
+## Local Testing Before Deployment
 
-| Platform | Difficulty | Free Tier | CI/CD | Preview Deploys | Database | Best For |
-|----------|-----------|-----------|-------|----------------|----------|----------|
-| **Vercel** | P Easiest |  Generous |  Auto |  Yes | † External | SvelteKit apps, static sites |
-| **Netlify** | P Very Easy |  Good |  Auto |  Yes | † External | Forms, serverless functions |
-| **Cloudflare** | PP Easy |  Best |  Auto |  Yes | † D1/KV | Global distribution, edge |
-| **Railway** | PP Easy | † Trial only |  Auto |  Yes |  Built-in | Apps needing databases |
+Before deploying to Cloudflare, always test locally:
+
+```bash
+# Install dependencies
+npm install
+
+# Run type checking
+npm run check
+
+# Build the project
+npm run build
+
+# Preview the production build locally
+npm run preview
+```
+
+Visit `http://localhost:4173` to test the production build locally.
 
 ---
 
@@ -223,46 +140,30 @@ Add in Vercel dashboard under Settings í Environment Variables:
 
 Before deploying, ensure:
 
-- [ ] All environment variables are documented in `.env.example`
+- [ ] All dependencies are installed: `npm install`
+- [ ] TypeScript checks pass: `npm run check`
 - [ ] Build succeeds locally: `npm run build`
 - [ ] Preview works locally: `npm run preview`
-- [ ] Tests pass: `npm test`
-- [ ] Code is pushed to GitHub/GitLab
-- [ ] `.env` is in `.gitignore` (never commit secrets!)
+- [ ] Code is pushed to GitHub
+- [ ] `.env` files are in `.gitignore` (never commit secrets!)
 
 ---
 
-## Post-Deployment
+## Monitoring & Analytics
 
-### Monitoring & Analytics
+### Cloudflare Web Analytics (Recommended)
 
-**Vercel Analytics** (if using Vercel)
-```bash
-npm install @vercel/analytics
-```
+Cloudflare provides free, privacy-first web analytics:
 
-```typescript
-// src/routes/+layout.svelte
-import { dev } from '$app/environment';
-import { inject } from '@vercel/analytics';
+1. Go to **Workers & Pages** ‚Üí **Your Project** ‚Üí **Analytics**
+2. View real-time traffic, performance metrics, and geographic distribution
+3. No tracking scripts needed - built into Cloudflare's infrastructure
+4. GDPR compliant, no cookie banner required
 
-if (!dev) inject();
-```
+### Error Tracking (Optional)
 
-**Alternative: Simple Analytics**
-- Privacy-friendly
-- GDPR compliant
-- No cookie banner needed
-- $9/month
+For production error tracking, consider **Sentry**:
 
-**Free Option: Cloudflare Web Analytics**
-- No tracking
-- Privacy-first
-- Works with any host
-
-### Error Tracking
-
-**Sentry** (Recommended for production)
 ```bash
 npm install @sentry/sveltekit
 ```
@@ -272,99 +173,7 @@ npm install @sentry/sveltekit
 - Source maps support
 - Performance monitoring
 
-### Uptime Monitoring
-
-**Free Options:**
-- [UptimeRobot](https://uptimerobot.com) - 50 monitors free
-- [StatusCake](https://www.statuscake.com) - Free tier available
-- [Better Uptime](https://betteruptime.com) - Beautiful status pages
-
----
-
-## CI/CD Enhancements (Optional)
-
-### GitHub Actions for Testing
-
-Create `.github/workflows/test.yml`:
-
-```yaml
-name: Test
-
-on:
-  pull_request:
-  push:
-    branches: [main]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-      - run: npm install
-      - run: npm run lint
-      - run: npm run test
-      - run: npm run build
-```
-
-This runs automatically on every PR, ensuring code quality before deployment.
-
-### Preview Comments on PRs
-
-Most platforms (Vercel, Netlify, Cloudflare) automatically comment on PRs with preview URLs. No configuration needed!
-
----
-
-## Recommendation for This Project
-
-### Phase 1 (MVP - Current)
-**Use: Vercel**
-- Zero config
-- Free tier sufficient
-- Automatic previews
-- Perfect for SvelteKit
-- Easiest to set up
-
-### Phase 2 (Adding Auth)
-**Stay with Vercel** or consider **Netlify**
-- Both handle OAuth redirects well
-- Environment variables easy to manage
-- Vercel Edge Functions for auth middleware
-- Netlify Functions for OAuth handlers
-
-### Phase 3-4 (Database + Persistence)
-**Consider: Railway or Vercel + External DB**
-- Railway: Built-in PostgreSQL (easiest)
-- Vercel + Supabase (PostgreSQL as a service)
-- Vercel + PlanetScale (MySQL as a service)
-- Cloudflare + D1 (SQLite at edge)
-
----
-
-## Quick Start: Deploy Now
-
-**Fastest path to production:**
-
-```bash
-# 1. Build locally to verify
-npm run build
-npm run preview
-
-# 2. Push to GitHub
-git add .
-git commit -m "Ready for deployment"
-git push
-
-# 3. Go to vercel.com
-# 4. Click "Import Project"
-# 5. Select your repo
-# 6. Click "Deploy"
-# 7. Done! You're live =Ä
-```
-
-Your app will be at: `https://your-project.vercel.app`
+Configuration: [docs.sentry.io/platforms/javascript/guides/sveltekit](https://docs.sentry.io/platforms/javascript/guides/sveltekit/)
 
 ---
 
@@ -380,17 +189,59 @@ npm run build
 **Common issues:**
 - Missing dependencies: Run `npm install`
 - TypeScript errors: Run `npm run check`
-- Environment variables: Check platform dashboard
+- Sass compilation errors: Check for deprecated syntax
+- Adapter mismatch: Verify `svelte.config.js` uses `@sveltejs/adapter-cloudflare`
 
 ### Preview Works But Production Fails
 
 **Check adapter configuration:**
-- Ensure correct adapter installed for platform
-- Verify `svelte.config.js` uses correct adapter
-- Check build output directory matches platform settings
+- Ensure `@sveltejs/adapter-cloudflare` is installed
+- Verify `svelte.config.js` imports and uses the correct adapter
+- Check build output directory matches: `.svelte-kit/cloudflare`
+- Review build logs in Cloudflare Dashboard
 
-### Need Help?
+### Environment Variables Not Working
 
-- **Vercel**: [vercel.com/docs](https://vercel.com/docs)
-- **Netlify**: [docs.netlify.com](https://docs.netlify.com)
-- **SvelteKit**: [kit.svelte.dev/docs/adapters](https://kit.svelte.dev/docs/adapters)
+- Environment variables must be prefixed with `PUBLIC_` to be accessible in client-side code
+- Server-side only variables don't need the prefix
+- Restart deployment after adding/updating variables
+- Check variable names match exactly (case-sensitive)
+
+---
+
+## Future Enhancements
+
+### Phase 2: Authentication
+When adding OAuth authentication:
+- Store OAuth secrets as environment variables in Cloudflare
+- Use Cloudflare Workers for OAuth callbacks
+- Consider Cloudflare Access for additional security
+
+### Phase 3-4: Database Integration
+For data persistence:
+- **Cloudflare D1**: SQLite database at the edge (beta, free tier available)
+- **Cloudflare KV**: Key-value storage for simple data
+- **Cloudflare Durable Objects**: For real-time features
+- **External**: Supabase or PlanetScale for PostgreSQL/MySQL
+
+---
+
+## Quick Reference
+
+**Repository**: `https://github.com/jchan922/worst-calculator`
+
+**Build Command**: `npm run build`
+
+**Build Output**: `.svelte-kit/cloudflare`
+
+**Production Branch**: `master`
+
+**Cloudflare Dashboard**: [dash.cloudflare.com](https://dash.cloudflare.com)
+
+---
+
+## Need Help?
+
+- **Cloudflare Pages Docs**: [developers.cloudflare.com/pages](https://developers.cloudflare.com/pages/)
+- **SvelteKit Adapter Docs**: [kit.svelte.dev/docs/adapter-cloudflare](https://kit.svelte.dev/docs/adapter-cloudflare)
+- **Community Support**: [community.cloudflare.com](https://community.cloudflare.com/)
