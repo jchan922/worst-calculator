@@ -64,12 +64,13 @@
   @use '$lib/styles/variables' as *;
 
   .calculator {
-    background-color: white;
+    background-color: var(--card-bg);
     border-radius: $border-radius;
     padding: $spacing-lg;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: $calculator-width;
     max-width: 100%;
+    transition: var(--theme-transition);
   }
 
   .button-grid {

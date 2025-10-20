@@ -21,61 +21,61 @@
 <style lang="scss">
   @use '$lib/styles/variables' as *;
   @use '$lib/styles/mixins' as *;
-  @use 'sass:color';
 
   .calculator-button {
     @include button-base;
     height: $button-size;
-    background-color: $button-bg;
-    color: $text-color;
-    border: 1px solid #ddd;
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    border: 1px solid var(--button-border);
     font-size: $font-size-lg;
     user-select: none;
+    transition: var(--theme-transition);
 
     &:hover {
-      background-color: $button-hover;
+      background-color: var(--button-hover);
     }
 
     &:active {
-      background-color: $button-active;
+      background-color: var(--button-active);
     }
 
     &.operator {
-      background-color: $operator-bg;
+      background-color: var(--operator-bg);
       color: white;
 
       &:hover {
-        background-color: $operator-hover;
+        background-color: var(--operator-hover);
       }
 
       &:active {
-        background-color: color.adjust($operator-bg, $lightness: -15%);
+        opacity: 0.8;
       }
     }
 
     &.clear {
-      background-color: $error-color;
+      background-color: var(--error-color);
       color: white;
 
       &:hover {
-        background-color: color.adjust($error-color, $lightness: -5%);
+        opacity: 0.9;
       }
 
       &:active {
-        background-color: color.adjust($error-color, $lightness: -10%);
+        opacity: 0.8;
       }
     }
 
     &.equals {
-      background-color: $primary-color;
+      background-color: var(--primary-color);
       color: white;
 
       &:hover {
-        background-color: color.adjust($primary-color, $lightness: -5%);
+        opacity: 0.9;
       }
 
       &:active {
-        background-color: color.adjust($primary-color, $lightness: -10%);
+        opacity: 0.8;
       }
     }
   }

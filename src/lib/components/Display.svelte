@@ -14,8 +14,8 @@
   @use '$lib/styles/variables' as *;
 
   .display {
-    background-color: $display-bg;
-    color: $display-text;
+    background-color: var(--display-bg);
+    color: var(--display-text);
     padding: $spacing-lg;
     text-align: right;
     font-size: $font-size-display;
@@ -29,5 +29,6 @@
     overflow: hidden;
     word-break: break-all;
     font-family: 'Courier New', monospace;
+    transition: var(--theme-transition);
   }
 </style>

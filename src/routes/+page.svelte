@@ -24,19 +24,22 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    flex: 1;
     gap: $spacing-lg;
+    padding: $spacing-xl;
   }
 
   h1 {
     font-size: 2.5rem;
-    color: $text-color;
+    color: var(--text-color);
     font-weight: 700;
+    transition: var(--theme-transition);
   }
 
   .timestamp {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--text-secondary);
     margin-top: -$spacing-md;
+    transition: var(--theme-transition);
   }
 </style>

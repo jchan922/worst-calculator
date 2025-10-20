@@ -1,22 +1,102 @@
 @use './variables' as *;
 @use './mixins' as *;
 
+// ============================================
+// CSS CUSTOM PROPERTIES (Light Mode Default)
+// ============================================
+
+:root {
+  // Primary colors
+  --primary-color: #{$primary-color-light};
+  --secondary-color: #{$secondary-color-light};
+  --error-color: #{$error-color-light};
+
+  // Background colors
+  --background-color: #{$background-color-light};
+  --surface-color: #{$surface-color-light};
+  --card-bg: #{$card-bg-light};
+
+  // Text colors
+  --text-color: #{$text-color-light};
+  --text-secondary: #{$text-secondary-light};
+
+  // Button colors
+  --button-bg: #{$button-bg-light};
+  --button-hover: #{$button-hover-light};
+  --button-active: #{$button-active-light};
+  --button-border: #{$button-border-light};
+
+  // Operator colors
+  --operator-bg: #{$operator-bg-light};
+  --operator-hover: #{$operator-hover-light};
+
+  // Display colors
+  --display-bg: #{$display-bg-light};
+  --display-text: #{$display-text-light};
+
+  // Transition
+  --theme-transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+// ============================================
+// DARK MODE THEME
+// ============================================
+
+:root[data-theme='dark'] {
+  // Primary colors
+  --primary-color: #{$primary-color-dark};
+  --secondary-color: #{$secondary-color-dark};
+  --error-color: #{$error-color-dark};
+
+  // Background colors
+  --background-color: #{$background-color-dark};
+  --surface-color: #{$surface-color-dark};
+  --card-bg: #{$card-bg-dark};
+
+  // Text colors
+  --text-color: #{$text-color-dark};
+  --text-secondary: #{$text-secondary-dark};
+
+  // Button colors
+  --button-bg: #{$button-bg-dark};
+  --button-hover: #{$button-hover-dark};
+  --button-active: #{$button-active-dark};
+  --button-border: #{$button-border-dark};
+
+  // Operator colors
+  --operator-bg: #{$operator-bg-dark};
+  --operator-hover: #{$operator-hover-dark};
+
+  // Display colors
+  --display-bg: #{$display-bg-dark};
+  --display-text: #{$display-text-dark};
+}
+
+// ============================================
+// GLOBAL RESET
+// ============================================
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+html {
+  // Smooth theme transitions
+  transition: var(--theme-transition);
+}
+
 body {
   font-family: $font-family;
-  background-color: $background-color;
-  color: $text-color;
+  background-color: var(--background-color);
+  color: var(--text-color);
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: var(--theme-transition);
 }
 
 #svelte {
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
