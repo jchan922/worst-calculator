@@ -3,11 +3,87 @@
    * Main calculator component
    */
 
+  import { onMount } from 'svelte';
+  import { browser } from '$app/environment';
   import { calculatorStore } from '$lib/stores/calculatorStore';
   import Button from './Button.svelte';
   import Display from './Display.svelte';
 
   const { state } = calculatorStore;
+
+  /**
+   * Handle keyboard input for calculator operations
+   */
+  function handleKeydown(event: KeyboardEvent): void {
+    const key = event.key;
+
+    // Prevent default behavior for calculator keys to avoid page scrolling, etc.
+    if (isCalculatorKey(key)) {
+      event.preventDefault();
+    }
+
+    // Numbers 0-9
+    if (/^[0-9]$/.test(key)) {
+      calculatorStore.handleNumberInput(key);
+      return;
+    }
+
+    // Operations
+    switch (key) {
+      case '+':
+        calculatorStore.handleOperationInput('add');
+        break;
+      case '-':
+        calculatorStore.handleOperationInput('subtract');
+        break;
+      case '*':
+      case 'x':
+      case 'X':
+        calculatorStore.handleOperationInput('multiply');
+        break;
+      case '/':
+        calculatorStore.handleOperationInput('divide');
+        break;
+      case 'Enter':
+      case '=':
+        calculatorStore.handleEquals();
+        break;
+      case '.':
+      case ',':
+        calculatorStore.handleDecimal();
+        break;
+      case 'Escape':
+        calculatorStore.handleAllClear();
+        break;
+      case 'Backspace':
+      case 'Delete':
+        calculatorStore.handleClear();
+        break;
+    }
+  }
+
+  /**
+   * Check if the key is a calculator key
+   */
+  function isCalculatorKey(key: string): boolean {
+    return /^[0-9+\-*/=.,]$/.test(key) ||
+           key === 'Enter' ||
+           key === 'Escape' ||
+           key === 'Backspace' ||
+           key === 'Delete' ||
+           key === 'x' ||
+           key === 'X';
+  }
+
+  onMount(() => {
+    if (browser) {
+      window.addEventListener('keydown', handleKeydown);
+
+      return () => {
+        window.removeEventListener('keydown', handleKeydown);
+      };
+    }
+  });
 </script>
 
 <div class="calculator">
@@ -58,6 +134,10 @@
     <Button value="0" onClick={() => calculatorStore.handleNumberInput('0')} span={2} />
     <Button value="." onClick={() => calculatorStore.handleDecimal()} />
   </div>
+
+  <div class="keyboard-hint" aria-hidden="true">
+    Keyboard supported
+  </div>
 </div>
 
 <style lang="scss">
@@ -77,5 +157,14 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: $spacing-sm;
+  }
+
+  .keyboard-hint {
+    margin-top: $spacing-md;
+    text-align: center;
+    font-size: $font-size-sm;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    font-weight: 500;
   }
 </style>
