@@ -12,7 +12,7 @@
 </main>
 
 <style lang="scss">
-  @import '$lib/styles/variables';
+  @use '$lib/styles/variables' as *;
 
   main {
     display: flex;

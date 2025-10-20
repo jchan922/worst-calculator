@@ -61,7 +61,7 @@
 </div>
 
 <style lang="scss">
-  @import '$lib/styles/variables';
+  @use '$lib/styles/variables' as *;
 
   .calculator {
     background-color: white;

@@ -19,8 +19,9 @@
 </button>
 
 <style lang="scss">
-  @import '$lib/styles/variables';
-  @import '$lib/styles/mixins';
+  @use '$lib/styles/variables' as *;
+  @use '$lib/styles/mixins' as *;
+  @use 'sass:color';
 
   .calculator-button {
     @include button-base;
@@ -48,7 +49,7 @@
       }
 
       &:active {
-        background-color: darken($operator-bg, 15%);
+        background-color: color.adjust($operator-bg, $lightness: -15%);
       }
     }
 
@@ -57,11 +58,11 @@
       color: white;
 
       &:hover {
-        background-color: darken($error-color, 5%);
+        background-color: color.adjust($error-color, $lightness: -5%);
       }
 
       &:active {
-        background-color: darken($error-color, 10%);
+        background-color: color.adjust($error-color, $lightness: -10%);
       }
     }
 
@@ -70,11 +71,11 @@
       color: white;
 
       &:hover {
-        background-color: darken($primary-color, 5%);
+        background-color: color.adjust($primary-color, $lightness: -5%);
       }
 
       &:active {
-        background-color: darken($primary-color, 10%);
+        background-color: color.adjust($primary-color, $lightness: -10%);
       }
     }
   }

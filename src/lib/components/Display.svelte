@@ -11,7 +11,7 @@
 </div>
 
 <style lang="scss">
-  @import '$lib/styles/variables';
+  @use '$lib/styles/variables' as *;
 
   .display {
     background-color: $display-bg;
