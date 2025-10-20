@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
   console.log('Server-side handler executed for /calculator route');
 
   return {
-    pageTitle: 'Calculator',
+    header: 'Worst Calculator',
     timestamp: new Date().toISOString(),
     // Any data returned here is passed to +page.svelte as `data` prop
   };
