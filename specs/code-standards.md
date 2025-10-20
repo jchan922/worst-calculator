@@ -146,177 +146,393 @@ src/lib/components/
 └── Button.test.ts
 ```
 
+### Test File Template
+
+Use this template as a starting point for all unit test files:
+
+```typescript
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { ClassUnderTest, type CustomType } from './ClassUnderTest';
+import { DependencyClass } from './DependencyClass';
+
+describe('ClassUnderTest', () => {
+  let instance: ClassUnderTest;
+  let mockDependency: DependencyClass;
+  let spyMethodName: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    // Setup: Create fresh instances, mock dependencies, reset state
+    mockDependency = {
+      methodName: vi.fn().mockReturnValue('mocked value'),
+      anotherMethod: vi.fn().mockResolvedValue({ data: 'async result' })
+    } as any;
+
+    instance = new ClassUnderTest(mockDependency);
+
+    // Create spies for class methods
+    spyMethodName = vi.spyOn(instance, 'methodName');
+  });
+
+  afterEach(() => {
+    // Cleanup: Clear mocks, close connections, reset global state
+    vi.clearAllMocks();
+    vi.restoreAllMocks();
+  });
+
+  describe('methodName()', () => {
+    // Data-driven tests for similar cases
+    [
+      { title: 'should handle typical case', input: value1, expected: result1 },
+      { title: 'should handle edge case', input: value2, expected: result2 },
+      { title: 'should handle boundary condition', input: value3, expected: result3 }
+    ].forEach(({ title, input, expected }) => {
+      it(title, () => {
+        expect(instance.methodName(input)).toBe(expected);
+      });
+    });
+
+    // Separate test when different assertion type is needed
+    it('should handle special case requiring different assertion', () => {
+      expect(instance.methodName(value)).toBeCloseTo(expected);
+    });
+
+    // Error condition tests
+    [
+      { title: 'should throw when invalid input', input: badValue1 },
+      { title: 'should throw when boundary exceeded', input: badValue2 }
+    ].forEach(({ title, input }) => {
+      it(title, () => {
+        expect(() => instance.methodName(input)).toThrow('Error message');
+      });
+    });
+  });
+
+  describe('methodWithDependency()', () => {
+    it('should call dependency method with correct arguments', () => {
+      instance.methodWithDependency(arg1, arg2);
+
+      expect(mockDependency.methodName).toHaveBeenCalledWith(arg1, arg2);
+      expect(mockDependency.methodName).toHaveBeenCalledTimes(1);
+    });
+
+    it('should use value returned from dependency', () => {
+      const result = instance.methodWithDependency();
+
+      expect(result).toBe('mocked value');
+    });
+  });
+
+  describe('methodToSpy()', () => {
+    it('should track method calls with spy', () => {
+      instance.methodToSpy(arg);
+
+      expect(spyMethodName).toHaveBeenCalledWith(arg);
+      expect(spyMethodName).toHaveBeenCalledTimes(1);
+    });
+
+    it('should override spy return value for specific test', () => {
+      spyMethodName.mockReturnValue('custom value');
+
+      const result = instance.methodToSpy();
+
+      expect(result).toBe('custom value');
+    });
+  });
+
+  describe('asyncMethod()', () => {
+    it('should handle async operations', async () => {
+      const result = await instance.asyncMethod();
+
+      expect(mockDependency.anotherMethod).toHaveBeenCalled();
+      expect(result).toEqual({ data: 'async result' });
+    });
+
+    it('should handle async errors', async () => {
+      mockDependency.anotherMethod.mockRejectedValue(new Error('Async error'));
+
+      await expect(instance.asyncMethod()).rejects.toThrow('Async error');
+    });
+  });
+});
+```
+
 ### Test Structure Patterns
 
 #### One Describe Block Per Method
 
-Each public method in a class should have its own `describe` block. This encapsulates all tests related to that method in one place, making tests easier to navigate and maintain.
+- Each public method gets its own `describe` block
+- Encapsulates all tests (standard cases + edge cases) for that method
+- Makes navigation and maintenance easier
 
-**Example** from `src/lib/models/Calculator.test.ts`:
-
+**Template**:
 ```typescript
-describe('Calculator', () => {
-  let calculator: Calculator;
+describe('ClassName', () => {
+  describe('methodOne()', () => {
+    // All methodOne tests
+  });
+
+  describe('methodTwo()', () => {
+    // All methodTwo tests
+  });
+});
+```
+
+#### Setup and Teardown
+
+Use `beforeEach` and `afterEach` for consistent test environments:
+
+**beforeEach**: Run before each test
+- Create fresh instances
+- Initialize mock data
+- Reset state
+- Set up test fixtures
+
+**afterEach**: Run after each test (optional)
+- Clear timers/intervals
+- Close database connections
+- Reset mocked modules
+- Clean up side effects
+
+**Template**:
+```typescript
+describe('ClassName', () => {
+  let instance: ClassName;
+  let mockDependency: MockType;
 
   beforeEach(() => {
-    calculator = new Calculator();
+    mockDependency = createMock();
+    instance = new ClassName(mockDependency);
   });
 
-  describe('add()', () => {
-    // All add() tests here, including edge cases
+  afterEach(() => {
+    // Only include if cleanup is necessary
+    mockDependency.cleanup();
+  });
+});
+```
+
+#### Data-Driven Testing with Inline Arrays
+
+Use inline arrays with `.forEach()` for testing multiple similar cases:
+
+**Benefits**:
+- Reduces duplication
+- Easy to add new test cases
+- Clear at a glance
+- Self-documenting
+
+**Template**:
+```typescript
+describe('methodName()', () => {
+  [
+    { title: 'descriptive test name', param1: value1, param2: value2, expected: result },
+    { title: 'another test case', param1: value3, param2: value4, expected: result2 }
+    // Add more cases easily
+  ].forEach(({ title, param1, param2, expected }) => {
+    it(title, () => {
+      expect(instance.methodName(param1, param2)).toBe(expected);
+    });
+  });
+});
+```
+
+#### When to Keep Tests Separate
+
+Not all tests should be data-driven. Keep tests separate when:
+
+**1. Different assertion types needed**:
+```typescript
+describe('methodName()', () => {
+  // Data-driven for exact matches
+  [
+    { title: 'test case', input: value, expected: result }
+  ].forEach(({ title, input, expected }) => {
+    it(title, () => {
+      expect(instance.methodName(input)).toBe(expected);
+    });
   });
 
-  describe('subtract()', () => {
-    // All subtract() tests here, including edge cases
+  // Separate for floating-point comparisons
+  it('should handle decimals with precision', () => {
+    expect(instance.methodName(0.1)).toBeCloseTo(0.3);
   });
 
-  describe('multiply()', () => {
-    // All multiply() tests here, including edge cases
+  // Separate for complex assertions
+  it('should return object with correct shape', () => {
+    const result = instance.methodName();
+    expect(result).toHaveProperty('key');
+    expect(result.key).toBeGreaterThan(0);
   });
+});
+```
 
-  describe('divide()', () => {
-    // All divide() tests here, including edge cases
+**2. Complex setup or teardown within specific test**:
+```typescript
+it('should handle async operation', async () => {
+  const promise = instance.asyncMethod();
+  await waitFor(() => expect(someCondition).toBe(true));
+  const result = await promise;
+  expect(result).toBe(expected);
+});
+```
+
+#### Type Safety in Tests
+
+Use type assertions to maintain TypeScript type safety:
+
+**Template**:
+```typescript
+describe('methodWithTypes()', () => {
+  [
+    { title: 'test case', operation: 'create' as OperationType, expected: result },
+    { title: 'another case', operation: 'update' as OperationType, expected: result2 }
+  ].forEach(({ title, operation, expected }) => {
+    it(title, () => {
+      expect(instance.methodWithTypes(operation)).toBe(expected);
+    });
   });
 });
 ```
 
 #### Edge Cases Within Method Describes
 
-Keep edge cases **within** their method's describe block rather than in a separate "Edge Cases" section. This maintains encapsulation and makes it clear which method is being tested.
+Keep edge cases **within** their method's describe block, not in a separate section:
 
-**Good**:
+**Good** ✅:
 ```typescript
 describe('divide()', () => {
   // Standard cases
-  it('should divide two positive numbers', () => { ... });
+  [
+    { title: 'should divide positive numbers', a: 10, b: 2, expected: 5 }
+  ].forEach(({ title, a, b, expected }) => {
+    it(title, () => {
+      expect(instance.divide(a, b)).toBe(expected);
+    });
+  });
 
   // Edge cases stay with the method
-  it('should throw error when dividing by zero', () => { ... });
-  it('should handle very small divisors', () => { ... });
+  it('should throw when dividing by zero', () => {
+    expect(() => instance.divide(5, 0)).toThrow('Division by zero');
+  });
 });
 ```
 
-**Avoid**:
+**Avoid** ❌:
 ```typescript
 describe('divide()', () => {
-  it('should divide two positive numbers', () => { ... });
+  it('should divide positive numbers', () => { ... });
 });
 
 describe('Edge Cases', () => {
-  // ❌ Separated from the method - harder to maintain
-  it('should throw error when dividing by zero', () => { ... });
+  // ❌ Separated from method - harder to maintain
+  it('should handle division by zero', () => { ... });
 });
 ```
 
-#### Data-Driven Testing with Inline Arrays
+#### Mocks and Spies
 
-Use inline arrays with `.forEach()` for testing multiple similar cases. This reduces duplication and makes it easy to add new test cases.
+Use Vitest's `vi` mock functions and spies to test interactions with dependencies.
 
-**Pattern**:
+**Mocks**: Create fake implementations of dependencies
+- Use `vi.fn()` to create mock functions
+- Use `mockReturnValue()` for synchronous returns
+- Use `mockResolvedValue()` for async returns
+- Use `mockRejectedValue()` for async errors
+
+**Spies**: Watch calls to existing methods without replacing them
+- Use `vi.spyOn()` to track method calls
+- Can override return values when needed
+- Useful for testing internal method calls
+
+**Mock Template**:
 ```typescript
-describe('add()', () => {
-  [
-    { title: 'should add two positive numbers', a: 2, b: 3, expected: 5 },
-    { title: 'should add positive and negative numbers', a: 5, b: -3, expected: 2 },
-    { title: 'should add two negative numbers', a: -2, b: -3, expected: -5 },
-    { title: 'should add zero to a number', a: 5, b: 0, expected: 5 },
-    { title: 'should handle very large numbers', a: 1e10, b: 1e10, expected: 2e10 }
-  ].forEach(({ title, a, b, expected }) => {
-    it(title, () => {
-      expect(calculator.add(a, b)).toBe(expected);
-    });
-  });
-});
-```
-
-**Benefits**:
-- Clear test cases at a glance
-- Easy to add new cases without code duplication
-- Consistent test structure
-- Self-documenting with descriptive titles
-
-#### When to Keep Tests Separate
-
-Not all tests should be data-driven. Keep tests separate when:
-
-1. **Different assertion types are needed**:
-```typescript
-describe('add()', () => {
-  // Data-driven for exact matches
-  [
-    { title: 'should add two positive numbers', a: 2, b: 3, expected: 5 },
-    // ...
-  ].forEach(({ title, a, b, expected }) => {
-    it(title, () => {
-      expect(calculator.add(a, b)).toBe(expected);
-    });
-  });
-
-  // Separate test for floating-point precision
-  it('should handle decimal numbers', () => {
-    expect(calculator.add(0.1, 0.2)).toBeCloseTo(0.3);
-  });
-});
-```
-
-2. **Testing error conditions**:
-```typescript
-describe('divide()', () => {
-  // Standard cases
-  [
-    { title: 'should divide two positive numbers', a: 10, b: 2, expected: 5 },
-    // ...
-  ].forEach(({ title, a, b, expected }) => {
-    it(title, () => {
-      expect(calculator.divide(a, b)).toBe(expected);
-    });
-  });
-
-  // Error cases can also use data-driven approach
-  [
-    { title: 'should throw error when dividing by zero', a: 5, b: 0 },
-    { title: 'should throw error when dividing zero by zero', a: 0, b: 0 }
-  ].forEach(({ title, a, b }) => {
-    it(title, () => {
-      expect(() => calculator.divide(a, b)).toThrow('Division by zero');
-    });
-  });
-});
-```
-
-#### Type Safety in Tests
-
-When testing with type-specific parameters, use type assertions to maintain type safety:
-
-```typescript
-describe('calculate()', () => {
-  [
-    { title: 'should perform addition when operation is "add"', operation: 'add' as Operation, a: 5, b: 3, expected: 8 },
-    { title: 'should perform subtraction when operation is "subtract"', operation: 'subtract' as Operation, a: 5, b: 3, expected: 2 },
-    { title: 'should perform multiplication when operation is "multiply"', operation: 'multiply' as Operation, a: 5, b: 3, expected: 15 },
-    { title: 'should perform division when operation is "divide"', operation: 'divide' as Operation, a: 10, b: 2, expected: 5 }
-  ].forEach(({ title, operation, a, b, expected }) => {
-    it(title, () => {
-      expect(calculator.calculate(operation, a, b)).toBe(expected);
-    });
-  });
-});
-```
-
-#### Test Setup with beforeEach
-
-Use `beforeEach` to create fresh instances for each test, preventing test pollution:
-
-```typescript
-describe('Calculator', () => {
-  let calculator: Calculator;
+describe('ClassWithDependencies', () => {
+  let mockDependency: DependencyType;
 
   beforeEach(() => {
-    calculator = new Calculator();
+    mockDependency = {
+      syncMethod: vi.fn().mockReturnValue('sync result'),
+      asyncMethod: vi.fn().mockResolvedValue({ data: 'async result' }),
+      errorMethod: vi.fn().mockRejectedValue(new Error('Error message'))
+    } as any;
   });
 
-  // All tests use the fresh calculator instance
+  afterEach(() => {
+    vi.clearAllMocks(); // Clear call history
+    vi.restoreAllMocks(); // Restore original implementations
+  });
+
+  it('should call dependency with correct arguments', () => {
+    instance.methodUnderTest(arg1, arg2);
+
+    expect(mockDependency.syncMethod).toHaveBeenCalledWith(arg1, arg2);
+    expect(mockDependency.syncMethod).toHaveBeenCalledTimes(1);
+  });
+
+  it('should use mocked return value', () => {
+    const result = instance.methodUnderTest();
+
+    expect(result).toBe('sync result');
+  });
 });
+```
+
+**Spy Template**:
+```typescript
+describe('ClassWithSpies', () => {
+  let instance: ClassUnderTest;
+  let spyInternalMethod: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    instance = new ClassUnderTest();
+    spyInternalMethod = vi.spyOn(instance, 'internalMethod');
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('should call internal method when public method is invoked', () => {
+    instance.publicMethod(arg);
+
+    expect(spyInternalMethod).toHaveBeenCalledWith(arg);
+    expect(spyInternalMethod).toHaveBeenCalledTimes(1);
+  });
+
+  it('should override spy return value for specific test', () => {
+    spyInternalMethod.mockReturnValue('custom value');
+
+    const result = instance.publicMethod();
+
+    expect(result).toBe('custom value');
+  });
+});
+```
+
+**Common Mock Assertions**:
+```typescript
+// Check if function was called
+expect(mockFn).toHaveBeenCalled();
+
+// Check call count
+expect(mockFn).toHaveBeenCalledTimes(2);
+
+// Check arguments
+expect(mockFn).toHaveBeenCalledWith(arg1, arg2);
+
+// Check last call arguments
+expect(mockFn).toHaveBeenLastCalledWith(arg1, arg2);
+
+// Check nth call arguments (0-indexed)
+expect(mockFn).toHaveBeenNthCalledWith(1, arg1, arg2);
+
+// Get all calls
+const calls = mockFn.mock.calls;
+expect(calls[0][0]).toBe(arg1);
+
+// Get all results
+const results = mockFn.mock.results;
+expect(results[0].value).toBe('result');
 ```
 
 ### Test Types
